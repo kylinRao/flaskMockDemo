@@ -62,43 +62,31 @@ class match:
     @classmethod
     @log_decorate
     def get_request_match_res(cls, content_type, request_str):
-        res = 'no match'
+
+        res = ''
         content_type = content_type.lower()
 
         for request_index in cls.config_dic[content_type].keys():
-            if content_type == 'application/json':
+
+            if content_type == "application/x-www-form-urlencoded":
                 if Util_Tools.compareJson(request_str, request_index):
-                    return cls.config_dic[content_type][request_index]
+                    res =  cls.config_dic[content_type][request_index]
                 else:
                     log_control.getLogger().debug("no response matches,return default error message:")
                     log_control.getLogger().debug({"message", res})
-                    return str(cls.config_dic["default_message"])
-            elif content_type == "application/x-www-form-urlencoded":
+                    res =  str(cls.config_dic["default_message"]['message'])
+            elif content_type == 'application/json':
                 if Util_Tools.compareJson(request_str, request_index):
-                    return cls.config_dic[content_type][request_index]
+                    res =  cls.config_dic[content_type][request_index]
                 else:
                     log_control.getLogger().debug("no response matches,return default error message:")
                     log_control.getLogger().debug({"message", res})
-                    return str(cls.config_dic["default_message"]['message'])
+                    res =  str(cls.config_dic["default_message"])
 
-        # return Util_Tools.get_config(sector=content_type, item=request_str)
-
-
-# class CONSTANTS:
-#     MATCH_DIC = {}
-#
-#     def __init__(self):
-#         self.refresh_match_dic()
-#
-#     @staticmethod
-#     def refresh_match_dic(filename="matchResponse.py"):
-#         CONSTANTS.MATCH_DIC = {}
-#         for line in fileinput.input(filename):
-#             uri, request_match, response_match = line.split("|")
-#             CONSTANTS.MATCH_DIC.update({"uri": uri, "request_match": request_match, "response_match": response_match})
-
+        log_control.getLogger('interface').info("{content_type}|{request_str}|{response_str}".format(content_type=content_type,request_str=request_str,response_str=res))
+        return res
 
 if __name__ == '__main__':
-    print(match.cf.sections())
+    ##print(match.cf.sections())
     match.reload_config_dic()
-    print(match.get_request_match_res(content_type='application/json', request_str="""{"a":"b"}"""))
+    ##print(match.get_request_match_res(content_type='application/json', request_str="""{"a":"b"}"""))

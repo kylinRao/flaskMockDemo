@@ -56,47 +56,47 @@ class Util_Tools():
 
         expectStrDic = eval(expectStr)
         realStrDic = eval(realStr)
-        print(type(expectStrDic))
+        ##print(type(expectStrDic))
         if (type(expectStrDic).__name__ == 'str'):
             if ((realStrDic) != (expectStrDic)):
-                print("expect:", expectStrDic)
-                print("in fact:", realStrDic)
+                ##print("expect:", expectStrDic)
+                ##print("in fact:", realStrDic)
                 return False
             else:
                 return True;
         if (type(expectStrDic).__name__ == 'int'):
             if ((realStrDic) != (expectStrDic)):
-                print("expect:", expectStrDic)
-                print("in fact:", realStrDic)
+                ##print("expect:", expectStrDic)
+                ##print("in fact:", realStrDic)
                 return False
             else:
                 return True;
         if (type(expectStrDic).__name__ == 'list'):
             if (len(realStrDic) != len(expectStrDic)):
-                print("expect:", expectStrDic)
-                print("in fact:", realStrDic)
+                ##print("expect:", expectStrDic)
+                ##print("in fact:", realStrDic)
 
                 return False
             for (item1, item2) in zip(realStrDic, expectStrDic):
-                print(item1, item2)
+                ##print(item1, item2)
                 cls.compareJson(str(item1), str(item2))
             return
         expectStrDicKeys = expectStrDic.keys()
         realStrDicKeys = realStrDic.keys()
 
         for k in expectStrDicKeys:
-            print(k, expectStrDic[k])
+            ##print(k, expectStrDic[k])
             if k not in realStrDicKeys:
                 return False
             elif (type(expectStrDic[k]).__name__ == 'list'):
 
                 if len(realStrDic[k]) != len(expectStrDic[k]):
-                    print("expect:", expectStrDic[k])
-                    print("in fact:", realStrDic[k])
+                    ##print("expect:", expectStrDic[k])
+                    ##print("in fact:", realStrDic[k])
 
                     return False
                 for (item1, item2) in zip(realStrDic[k], expectStrDic[k]):
-                    print(item1, item2)
+                    ##print(item1, item2)
                     cls.compareJson(str(item1), str(item2))
 
             elif (type(expectStrDic[k]).__name__ == 'dict'):
@@ -121,4 +121,4 @@ class Util_Tools():
 if __name__ == '__main__':
     realstr = '''{"code":"uworker_1001","msg":"初次登陆","data":"b3ad55a6d9dca80dd6e8f0cb6263968f"}'''
     expectStr = '''{"code":"uworker_1001","msg":"初次登陆","data":"@C"}'''
-    print(Util_Tools.compareJson(realStr=realstr, expectStr=expectStr))
+    ##print(Util_Tools.compareJson(realStr=realstr, expectStr=expectStr))
