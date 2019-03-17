@@ -1,19 +1,33 @@
-from flask import Flask, request
+from flask import Flask, request, Blueprint, url_for, redirect
 
-from lib.log_control import log_control
+from lib.Tools import run_log_decorate, Tools
 from lib.match import match
 
+routes = Blueprint('routes', __name__)
 app = Flask(__name__)
-app.debug = True
+app.register_blueprint(routes,)
 
 
+
+
+
+@app.before_request
+def before_routes():
+    Tools.runLogHander.debug(request.url)
+    if "/mock" not in request.url:
+        return redirect(url_for('mock'))
+
+
+@run_log_decorate
 @app.route('/')
 def hello_world():
+    Tools.runLogHander.debug(request.url)
     return 'Hello World!'
 
-
+@run_log_decorate
 @app.route('/mock', methods=['get', 'post'])
 def mock():
+    Tools.runLogHander.debug("mock here")
     # ##print(request.method)
     # ##print(request.method, request.headers)
     # ##print("headers展示：")

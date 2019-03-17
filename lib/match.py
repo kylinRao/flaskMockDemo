@@ -4,7 +4,7 @@ import os
 
 from lib.common_tools import Util_Tools
 from lib.decorate_tools import log_decorate
-from lib.log_control import log_control
+from logControl import logControl
 
 """
 读取配置文件信息
@@ -28,11 +28,11 @@ class match:
     @log_decorate
     def reload_config_dic(cls):
         for content_type in cls.cf.sections():
-            log_control.getLogger().debug("find config in sections:  " + content_type)
+            logControl.getLogger().debug("find config in sections:  " + content_type)
             cls.config_dic.update({content_type: {}})
             cls.reload_config_dic_one_content_type(content_type=content_type)
-        log_control.getLogger().debug("config_dic is initializing and the result is:")
-        log_control.getLogger().debug(cls.config_dic)
+        logControl.getLogger().debug("config_dic is initializing and the result is:")
+        logControl.getLogger().debug(cls.config_dic)
 
     @classmethod
     @log_decorate
