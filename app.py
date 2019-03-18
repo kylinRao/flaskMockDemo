@@ -28,6 +28,8 @@ def hello_world():
 @app.route('/mock', methods=['get', 'post'])
 def mock():
     Tools.runLogHander.debug("mock here")
+    if not request.headers.get("Content-Type"):
+        return "请求类型不明"
     # ##print(request.method)
     # ##print(request.method, request.headers)
     # ##print("headers展示：")
