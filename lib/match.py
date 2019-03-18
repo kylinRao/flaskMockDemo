@@ -72,18 +72,18 @@ class match:
                 if Util_Tools.compareJson(request_str, request_index):
                     res =  cls.config_dic[content_type][request_index]
                 else:
-                    log_control.getLogger().debug("no response matches,return default error message:")
-                    log_control.getLogger().debug({"message", res})
+                    logControl.getLogger().debug("no response matches,return default error message:")
+                    logControl.getLogger().debug({"message", res})
                     res =  str(cls.config_dic["default_message"]['message'])
             elif content_type == 'application/json':
                 if Util_Tools.compareJson(request_str, request_index):
                     res =  cls.config_dic[content_type][request_index]
                 else:
-                    log_control.getLogger().debug("no response matches,return default error message:")
-                    log_control.getLogger().debug({"message", res})
+                    logControl.getLogger().debug("no response matches,return default error message:")
+                    logControl.getLogger().debug({"message", res})
                     res =  str(cls.config_dic["default_message"])
 
-        log_control.getLogger('interface').info("{content_type}|{request_str}|{response_str}".format(content_type=content_type,request_str=request_str,response_str=res))
+            logControl.getLogger('interface').info("{content_type}|{request_str}|{response_str}".format(content_type=content_type,request_str=request_str,response_str=res))
         return res
 
 if __name__ == '__main__':

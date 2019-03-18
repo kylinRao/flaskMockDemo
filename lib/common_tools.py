@@ -46,57 +46,78 @@ class Util_Tools():
 
         expectStr = cls.toStr(expectStr)
         realStr = cls.toStr(realStr)
+        if (not '{' in realStr) and (not '[' in realStr):
+            if ((realStr) != (expectStr)):
+                print("expect:", expectStr)
+                print("in fact:", realStr)
+                raise AssertionError("{realStrDic} not match {expectStrDic}".format(realStrDic=realStr,
+                                                                                    expectStrDic=expectStr))
+            else:
+                return ;
+
+
 
         if "false" in expectStr or "true" in expectStr:
-            expectStr = expectStr.replace("false", "False").replace("true", "True")
+
+            expectStr=expectStr.replace("false","False").replace("true", "True")
         if "false" in realStr or "true" in expectStr:
+
             realStr = realStr.replace("false", "False").replace("true", "True")
-        if (expectStr == "NC"):
-            return;
+        if(expectStr=="NC"):
+            return ;
 
         expectStrDic = eval(expectStr)
         realStrDic = eval(realStr)
-        ##print(type(expectStrDic))
+        print(type(expectStrDic))
         if (type(expectStrDic).__name__ == 'str'):
             if ((realStrDic) != (expectStrDic)):
-                ##print("expect:", expectStrDic)
-                ##print("in fact:", realStrDic)
-                return False
+                print("expect:", expectStrDic)
+                print("in fact:", realStrDic)
+                raise AssertionError("{realStrDic} not match {expectStrDic}".format(realStrDic=realStrDic,expectStrDic=expectStrDic))
             else:
                 return True;
         if (type(expectStrDic).__name__ == 'int'):
             if ((realStrDic) != (expectStrDic)):
-                ##print("expect:", expectStrDic)
-                ##print("in fact:", realStrDic)
-                return False
+                print("expect:", expectStrDic)
+                print("in fact:", realStrDic)
+                raise AssertionError("{realStrDic} not match {expectStrDic}".format(realStrDic=realStrDic,expectStrDic=expectStrDic))
             else:
                 return True;
         if (type(expectStrDic).__name__ == 'list'):
             if (len(realStrDic) != len(expectStrDic)):
-                ##print("expect:", expectStrDic)
-                ##print("in fact:", realStrDic)
+                print("expect:", expectStrDic)
+                print("in fact:", realStrDic)
 
-                return False
+                raise AssertionError("list length not match")
             for (item1, item2) in zip(realStrDic, expectStrDic):
-                ##print(item1, item2)
+                print(item1, item2)
                 cls.compareJson(str(item1), str(item2))
             return
         expectStrDicKeys = expectStrDic.keys()
         realStrDicKeys = realStrDic.keys()
 
         for k in expectStrDicKeys:
-            ##print(k, expectStrDic[k])
+            print(k,expectStrDic[k])
             if k not in realStrDicKeys:
-                return False
+                raise AssertionError("expect key :" + k + " ,but  doesnot found one ")
             elif (type(expectStrDic[k]).__name__ == 'list'):
 
                 if len(realStrDic[k]) != len(expectStrDic[k]):
-                    ##print("expect:", expectStrDic[k])
-                    ##print("in fact:", realStrDic[k])
+                    print("expect:", expectStrDic[k])
+                    print("in fact:", realStrDic[k])
 
-                    return False
+                    raise AssertionError("list length not match")
                 for (item1, item2) in zip(realStrDic[k], expectStrDic[k]):
-                    ##print(item1, item2)
+                    print(item1, item2)
+                    print(type(item1))
+                    if (type(item1).__name__ == 'str')  :
+                        if not (( '{' in item1) or ( '[' in item1)):
+                            if ((item1) != (item2)):
+                                print("expect:", item2)
+                                print("in fact:", item1)
+                                raise AssertionError("{realStrDic} not match {expectStrDic}".format(realStrDic=item1,
+                                                                                                    expectStrDic=item2))
+
                     cls.compareJson(str(item1), str(item2))
 
             elif (type(expectStrDic[k]).__name__ == 'dict'):
@@ -108,15 +129,13 @@ class Util_Tools():
                     continue
                 else:
                     # 模糊匹配失败
-                    return False
+                    raise AssertionError(expectStrDic[k].replace("@FM", "") + " is not in " + realStrDic[k])
             elif "@CK" in str(expectStrDic[k]):
                 # 仅检查key存在即可
                 continue
             elif expectStrDic[k] != realStrDic[k]:
 
-                return False
-        return True
-
+                raise AssertionError(str(expectStrDic[k]) + " not match " + str(realStrDic[k]))
 
 if __name__ == '__main__':
     realstr = '''{"code":"uworker_1001","msg":"初次登陆","data":"b3ad55a6d9dca80dd6e8f0cb6263968f"}'''
