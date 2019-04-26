@@ -11,5 +11,8 @@ def log_decorate(func):
 
         response_func = func(*args, **kwargs)
         '''执行函数之后要做的'''
+        logControl.getLogger().info(
+            "end function ---------------------------{func_name}---------------------------".format(
+                func_name=func.__name__))
         return response_func
     return inner

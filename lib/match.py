@@ -4,6 +4,7 @@ import os
 
 from lib.common_tools import Util_Tools
 from lib.decorate_tools import log_decorate
+from lib.Tools import Tools
 from logControl import logControl
 
 """
@@ -23,6 +24,8 @@ class match:
     @log_decorate
     def __init__(self):
         self.reload_config_dic(self)
+        Tools.runLogHander.debug("初始化完成，已配置的字典如下：")
+        Tools.runLogHander.debug(self.config_dic)
 
     @classmethod
     @log_decorate
@@ -42,9 +45,11 @@ class match:
 
         with open(res_file, 'r') as f:
             for line in f.readlines():
-                request_index, response_value = line.split('|')
-                cls.config_dic[content_type][request_index] = response_value
-                cls.config_dic[content_type].update({request_index: response_value})
+                uri_pre,request_index, response_value = line.split('|')
+                cls.config_dic[content_type].update({uri_pre: {}})
+                response_value = response_value.rstrip()
+                # cls.config_dic[uri_pre][content_type][request_index] = response_value
+                cls.config_dic[content_type][uri_pre].update({request_index: response_value})
 
     @classmethod
     @log_decorate
@@ -61,30 +66,40 @@ class match:
 
     @classmethod
     @log_decorate
-    def get_request_match_res(cls, content_type, request_str):
+    def get_request_match_res(cls,uri_pre, content_type, request_str):
 
         res = ''
         content_type = content_type.lower()
 
-        for request_index in cls.config_dic[content_type].keys():
+        for request_index in cls.config_dic[content_type][uri_pre].keys():
 
             if content_type == "application/x-www-form-urlencoded":
                 if Util_Tools.compareJson(request_str, request_index):
-                    res =  cls.config_dic[content_type][request_index]
+                    res = cls.config_dic[content_type][uri_pre][request_index]
                 else:
                     logControl.getLogger().debug("no response matches,return default error message:")
                     logControl.getLogger().debug({"message", res})
-                    res =  str(cls.config_dic["default_message"]['message'])
+                    res = str(cls.config_dic["default_message"]['message'])
             elif content_type == 'application/json':
-                if Util_Tools.compareJson(request_str, request_index):
-                    res =  cls.config_dic[content_type][request_index]
+                Tools.runLogHander.debug(
+                    "开始匹配请求参数：{request_str}    和    {request_index}".format(request_str=str(request_str, "utf-8"),
+                                                                            request_index=request_index))
+                matchResult = Util_Tools.compareJson(str(request_str, "utf-8"), request_index)
+                Tools.runLogHander.debug("字符匹配结果为：{matchResult}".format(matchResult=matchResult))
+
+                if matchResult:
+                    res = cls.config_dic[content_type][uri_pre][request_index]
                 else:
                     logControl.getLogger().debug("no response matches,return default error message:")
                     logControl.getLogger().debug({"message", res})
-                    res =  str(cls.config_dic["default_message"])
+                    res = str(cls.config_dic["default_message"])
 
-            logControl.getLogger('interface').info("{content_type}|{request_str}|{response_str}".format(content_type=content_type,request_str=request_str,response_str=res))
-        return res
+            logControl.getLogger('interface').info(
+                "{content_type}|{request_str}|{response_str}".format(content_type=content_type, request_str=request_str,
+                                                                     response_str=res))
+            return res
+
+
 
 if __name__ == '__main__':
     ##print(match.cf.sections())
