@@ -11,6 +11,14 @@ from lib.api.configApi import updateConfig,getConfigContent
 from lib.match import match
 from lib.api.mockApi import mock
 from werkzeug.routing import BaseConverter
+import asyncio
+import requests
+import websockets
+
+async def echo(websocket, path):
+    async for message in websocket:
+        print(message)
+        await websocket.send(message)
 
 
 class RegexConverter(BaseConverter):
@@ -23,18 +31,34 @@ class RegexConverter(BaseConverter):
 app = Flask(__name__)
 app.url_map.converters['re'] = RegexConverter
 
-
+def generate_json_to_send(content):
+    json_to_send = {"contentType": "historyLog", "content": "日志"}
+    json_to_send.update({"content": content})
+    return json.dumps(json_to_send)
 @app.after_request
 def after_routes(environ):
     Tools.runLogHander.debug(type(g.request_data).__name__)
     Tools.runLogHander.debug("===========================================")
     Tools.runLogHander.debug(g.response_data)
 
+
     try:
         if type(g.request_data).__name__ == 'bytes':
-            if ("reloadConfigContent" in request.url) or ("getHistoryLog" in request.url):
+            if ("reloadConfigContent12121" in request.url) or ("getHistoryLog12121212" in request.url):
                 pass
             else:
+                log_content = "{url}|{contentType}|{method}|{request_str}|{response}".format(url=request.url,
+                                                                                             contentType=request.headers.get(
+                                                                                                 "Content-Type"),
+                                                                                             method=request.method,
+                                                                                             request_str=str(
+                                                                                                          g.request_data,
+                                                                                                          "utf-8"),
+                                                                                             response=g.response_data)
+
+                r = requests.get(
+                    "{push_url}{push_content}".format(push_url=CONSTANTS.PUSH_URL, push_content=generate_json_to_send(log_content)))
+                # print("{push_url}{push_content}".format(push_url=CONSTANTS.PUSH_URL, push_content=generate_json_to_send(log_content)))
                 Tools.interfaceHander.info("{url}|{contentType}|{method}|{request_str}|{response}".format(url=request.url,
                                                                                                       contentType=request.headers.get(
                                                                                                           "Content-Type"),
@@ -43,17 +67,29 @@ def after_routes(environ):
                                                                                                           g.request_data,
                                                                                                           "utf-8"),
                                                                                                       response=g.response_data))
+
         elif type(g.request_data).__name__ == 'str':
-            Tools.interfaceHander.info("{url}|{contentType}|{method}|{request_str}|{response}".format(url=request.url,
+
+            log_content = "{url}|{contentType}|{method}|{request_str}|{response}".format(url=request.url,
                                                                                                       contentType=request.headers.get(
                                                                                                           "Content-Type"),
                                                                                                       method=request.method,
                                                                                                       request_str=g.request_data,
-                                                                                                      response=g.response_data))
+                                                                                                      response=g.response_data)
+            r = requests.get(
+                "{push_url}{push_content}".format(push_url=CONSTANTS.PUSH_URL,
+                                                  push_content=generate_json_to_send(log_content)))
+
+            Tools.interfaceHander.info(log_content)
+
 
     except:
         Tools.runLogHander.debug("匹配mock uri过程，不记录接口日志")
     return environ
+
+async def report_log(log_content):
+    async with websockets.connect(CONSTANTS.WEBSOCKET_URL) as websocket:
+        await websocket.send({"contentType": "reportLog", "content": log_content})
 @app.before_request
 def before_routes():
     Tools.runLogHander.debug(request.url)
@@ -90,4 +126,6 @@ if __name__ == '__main__':
     match.reload_config_dic()
     Tools.runLogHander.debug("初始化结束")
     Tools.runLogHander.debug(match.config_dic)
-    app.run(host="0.0.0.0", debug=True)
+
+    app.run(host="0.0.0.0", port=6000 ,debug=True)
+
